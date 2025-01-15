@@ -1,9 +1,11 @@
 package worker
 
 import (
+	"log"
 	"sync"
-	"thumbnail-service/internal/config"
-	"thumbnail-service/internal/worker"
+
+	"github.com/alpgozbasi/thumbnail-service/internal/config"
+	"github.com/alpgozbasi/thumbnail-service/internal/image"
 )
 
 // job carries the input path of the image
@@ -20,12 +22,15 @@ type Result struct {
 	Err        error
 }
 
+// start spawns multiple worker goroutines based on cfg.WorkerCount
 func Start(cfg *config.Config, jobs <-chan Job, results chan<- Result, wg *sync.WaitGroup) {
 	for w := 1; w <= cfg.WorkerCount; w++ {
 		wg.Add(1)
-		go worker
+		go worker(cfg, w, jobs, results, wg)
 	}
 }
+
+// worker listens for jobs, generates thumbnails, and sends results
 func worker(cfg *config.Config, workerID int, jobs <-chan Job, results chan<- Result, wg *sync.WaitGroup) {
 	defer wg.Done()
 

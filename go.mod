@@ -1,4 +1,4 @@
-module thumbnail-service
+module github.com/alpgozbasi/thumbnail-service
 
 go 1.23.4
 
